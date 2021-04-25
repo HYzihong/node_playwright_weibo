@@ -1,0 +1,26 @@
+{
+  "name": "weibo_playwright",
+  "version": "1.0.0",
+  "description": "weibo playwright",
+  "main": "index.js",
+  "scripts": {
+    "run": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "commit": "git add -A && git-cz"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "cz-conventional-changelog": "^3.3.0",
+    "playwright": "^1.10.0"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.6",
+    "node-xlsx": "^0.16.1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
