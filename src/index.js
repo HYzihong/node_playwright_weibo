@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2021-04-14 10:03:15
- * @LastEditTime: 2021-04-25 08:26:28
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: /node_playwright/src/index.js
- */
 const cheerio = require('cheerio');
 const { chromium } = require('playwright');
 const xlsx = require('node-xlsx');
