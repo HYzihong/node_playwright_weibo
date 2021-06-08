@@ -2,6 +2,37 @@ const cheerio = require('cheerio');
 const { chromium } = require('playwright');
 const xlsx = require('node-xlsx');
 const fs = require('fs');
+const readline = require('readline');//命令行输入
+const inquirer = require("inquirer");// 命令行select
+const rl = readline.createInterface({// 命令行输入 config
+  input: process.stdin,
+  output: process.stdout
+});
+const pageLimit =  {
+      type: "list",
+      message: "请选择抓取的页数：",
+      name: "page",
+      choices: [
+        {
+          name: "10页",
+          value: 10,
+        },
+        {
+          name:  "20页",
+          value: 20,
+        },
+        {
+          name: "50页",
+          value: 50,
+        },
+        {
+          name:  "100页",
+          value: 100,
+        },
+      ],
+}
+
+
 
 // npx playwright codegen --target javascript -o 'temp.js' -b chromium https://m.weibo.cn/
 // const userList_07  = []
@@ -145,12 +176,31 @@ async function write_xlsx(excelData){
     })
 }
 
-async function main(){
-  const url = `https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E4%B8%8A%E7%99%BE%E5%90%8D%E5%85%B1%E5%92%8C%E5%85%9A%E4%BA%BA%E8%A6%81%E6%B1%82%E8%AF%A5%E5%85%9A%E4%B8%8E%E7%89%B9%E6%9C%97%E6%99%AE%E5%86%B3%E8%A3%82%23&isnewpage=1&extparam=seat%3D1%26source%3Dranklist%26filter_type%3Drealtimehot%26pos%3D0%26pre_seqid%3D1940032114%26dgr%3D0%26c_type%3D30%26mi_cid%3D100103%26flag%3D1%26cate%3D0%26display_time%3D1620994529&luicode=10000011&lfid=231583`
-  const pagination = 10
+async function xlsx_main(url,pagination){
+  // const url = `https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E4%B8%8A%E7%99%BE%E5%90%8D%E5%85%B1%E5%92%8C%E5%85%9A%E4%BA%BA%E8%A6%81%E6%B1%82%E8%AF%A5%E5%85%9A%E4%B8%8E%E7%89%B9%E6%9C%97%E6%99%AE%E5%86%B3%E8%A3%82%23&isnewpage=1&extparam=seat%3D1%26source%3Dranklist%26filter_type%3Drealtimehot%26pos%3D0%26pre_seqid%3D1940032114%26dgr%3D0%26c_type%3D30%26mi_cid%3D100103%26flag%3D1%26cate%3D0%26display_time%3D1620994529&luicode=10000011&lfid=231583`
+  // const pagination = 10
+  // console.log('xlsx_main',url,pagination);
   console.time('func');
   await content(url,pagination)
   await init_xlsx_data()
   console.timeEnd('func');
 }
+
+
+
+async function main(){
+  let page ;
+  let url ;
+  rl.question('请输入微博话题网址：', (wb_url) => {
+    url=wb_url;
+    // console.log('wb_url',url);
+    rl.close();
+    inquirer.prompt(pageLimit).then((option) => {
+      // console.log(option);
+      page = option.page
+      xlsx_main(url,page)
+    });
+  });
+}
+
 main()
