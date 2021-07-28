@@ -102,3 +102,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+
+# xlsx
+*.xlsx
+
+# temp
+
+temp.js

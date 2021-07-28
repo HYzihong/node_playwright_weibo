@@ -8,6 +8,8 @@ const rl = readline.createInterface({// 命令行输入 config
   input: process.stdin,
   output: process.stdout
 });
+const dayjs= require('dayjs')
+const day = new dayjs()
 const pageLimit =  {
       type: "list",
       message: "请选择抓取的页数：",
@@ -29,6 +31,14 @@ const pageLimit =  {
           name:  "100页",
           value: 100,
         },
+        {
+          name:  "200页",
+          value: 200,
+        },
+        {
+          name:  "1000页",
+          value: 1000,
+        },
       ],
 }
 
@@ -49,7 +59,7 @@ const userList_yellowv  = []// 黄V
  * @return {arr} userList
  */
 async function content(url,pagination){
-    const browser = await chromium.launch({slowMo:1000});
+    const browser = await chromium.launch({headless:false,slowMo:1000});
     
     const page = await browser.newPage();
   
@@ -63,12 +73,13 @@ async function content(url,pagination){
     // 等待三秒
     await page.waitForTimeout(3000)
 
-    // page.click('text=热门')
+    page.click('text=实时')
     // await page.waitForTimeout(3000)
 
 
     // 把鼠标移到页面视图最下方
     for(let i =0,len = pagination;i<=len;i++){
+      console.log(`正在爬取第${i}页数据中....`);
       await page.evaluate(()=> window.scrollTo(0,document.body.scrollHeight))
       await page.waitForTimeout(2000)
     }
@@ -94,19 +105,19 @@ async function content(url,pagination){
       // 蓝V
       if(userBox.indexOf('<i class="m-icon m-icon-bluev"></i>')!==-1){
         const user = await setUser($(elem).text()) 
-        // console.log('vip bluev ===> ',user);
+        console.log('vip bluev ===> ',user);
         userList_bluev.push(user)
       }
       // 金V
       if(userBox.indexOf('<i class="m-icon m-icon-goldv-static"></i>')!==-1){
         const user = await setUser($(elem).text()) 
-        // console.log('vip goldv-static ===> ',user);
+        console.log('vip goldv-static ===> ',user);
         userList_goldv_static.push(user)
       }
       // 黄V
       if(userBox.indexOf('<i class="m-icon m-icon-yellowv"></i>')!==-1){
         const user = await setUser($(elem).text()) 
-        // console.log('vip goldv-static ===> ',user);
+        console.log('vip goldv-static ===> ',user);
         userList_yellowv.push(user)
       }
       
@@ -115,11 +126,20 @@ async function content(url,pagination){
     await browser.close();
 }
 
+/**
+ * @description: 获取用户姓名
+ * @param {*} user
+ * @return {*}
+ */
 async function setUser(user){
   return await {user:user.split('          ')[1],desc:user}
 }
 
-
+/**
+ * @description: 数组去重
+ * @param {*} arr
+ * @return {*}
+ */
 function unique(arr){            
   for(var i=0; i<arr.length; i++){
       for(var j=i+1; j<arr.length; j++){
@@ -165,14 +185,15 @@ async function write_xlsx(excelData){
     // 写xlsx
     var buffer = xlsx.build(excelData);
     //写入数据
-    const fileName =  `./话题统计.xls`
+    const NOWDAY = dayjs().format('YYYY-MM-DD HH:mm:ss')
+    const fileName =  `./话题统计(截止时间:${NOWDAY}).xlsx`
     fs.writeFile(fileName, buffer, function (err) {
         if (err)
         {
             throw err;
         }
         //输出日志
-        console.log(`话题已搞定`);
+        console.log(`话题已爬取完成`);
     })
 }
 
@@ -198,6 +219,7 @@ async function main(){
     inquirer.prompt(pageLimit).then((option) => {
       // console.log(option);
       page = option.page
+      console.log('开始抓取中......');
       xlsx_main(url,page)
     });
   });
